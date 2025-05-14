@@ -17,7 +17,7 @@ public class GameManager : MonoBehaviour
         if (dialogueViewInstance == null)
         {
             Debug.LogError("GameManager: DialogueView instance is not assigned in the Inspector!");
-            enabled = false; // GameManager 비활성화
+            enabled = false; // GameManager 비활성화.
             return;
         }
         if (testDialogueSequence == null)

@@ -1,0 +1,37 @@
+{
+  "C001": {
+    "ChoiceID": "C001",
+    "choices": [
+      {
+        "text": "물건을 산다",
+        "nextKey": "D002",
+        "eventKey": null
+      },
+      {
+        "text": "그냥 나간다",
+        "nextKey": "D003",
+        "eventKey": null
+      }
+    ]
+  },
+  "C002": {
+    "ChoiceID": "C002",
+    "choices": [
+      {
+        "text": "밖으로 나선다",
+        "nextKey": "D001",
+        "eventKey": null
+      },
+      {
+        "text": "선반을 조사한다",
+        "nextKey": "D002",
+        "eventKey": null
+      },
+      {
+        "text": "무시한다",
+        "nextKey": "D003",
+        "eventKey": null
+      }
+    ]
+  }
+}

@@ -4,10 +4,11 @@ using UnityEngine;
 
 public class DialoguePresenter
 {
+
     private IDialogueView _view;
+    private DialogueData _currentDialogue;
     private DialogueSequence _currentSequence;
-    private int _currentLineIndex = -1;
-    private float _charsPerSecond = 20f;
+    public float _charsPerSecond = 20f;
 
     public DialoguePresenter(IDialogueView view)
     {
@@ -15,10 +16,9 @@ public class DialoguePresenter
         _view.OnViewClicked += HandleViewClicked; // View가 다음으로 가도 된다고 할 때 호출됨
         _view.OnTypingAnimationComplete += HandleTypingComplete;
     }
-
     public void StartDialogue(DialogueSequence sequence)
     {
-        if (sequence == null || sequence.lines.Length == 0)
+        if (sequence == null || sequence.Dialogue == null || sequence.Dialogue.Count == 0)
         {
             Debug.LogWarning("DialoguePresenter: Sequence is null or empty.");
             EndDialogue();
@@ -26,37 +26,35 @@ public class DialoguePresenter
         }
 
         _currentSequence = sequence;
-        _currentLineIndex = -1;
+        _currentDialogue = sequence.Dialogue[0]; // 첫 대사로 시작
         _view.ShowView(true);
-        // TODO: View에 폰트 크기, 자간 등 초기 설정 적용
-        ShowNextLine();
+        ShowCurrentLine();
     }
 
-    private void ShowNextLine()
+    private void ShowCurrentLine()
     {
-        _currentLineIndex++;
-        if (_currentSequence != null && _currentLineIndex < _currentSequence.lines.Length)
+        if (_currentDialogue == null)
         {
-            DialogueLine line = _currentSequence.lines[_currentLineIndex];
-            _view.SetSpeakerName(line.speakerName);
-            _view.AnimateMessage(line.sentence, _charsPerSecond);
-        }
-        else
             EndDialogue();
-
+            return;
+        }
+        _view.SetSpeakerName(_currentDialogue.speakerName);
+        _view.AnimateMessage(_currentDialogue.sentence, _charsPerSecond);
     }
 
-    // ▼▼▼▼▼ 여기가 핵심 수정 부분입니다 ▼▼▼▼▼
     private void HandleViewClicked()
     {
-        // DialogueView의 OnPointerClick 핸들러에서 이미 다음 대사로 넘어갈 준비가 되었을 때만
-        // OnViewClicked 이벤트가 발생하도록 수정되었습니다.
-        // 따라서 이 메서드는 View가 "다음 대사로 진행해도 돼!"라고 알려줄 때 호출되므로,
-        // 여기서는 단순히 ShowNextLine()만 호출하면 됩니다.
-        ShowNextLine();
+        // 현재 대사의 nextKey를 이용해 다음 대사로 이동
+        if (_currentDialogue != null && !string.IsNullOrEmpty(_currentDialogue.nextKey))
+        {
+            _currentDialogue = _currentSequence.Dialogue.Find(d => d.DialogueID == _currentDialogue.nextKey);
+            ShowCurrentLine();
+        }
+        else
+        {
+            EndDialogue();
+        }
     }
-    // ▲▲▲▲▲ 여기가 핵심 수정 부분입니다 ▲▲▲▲▲
-
     private void HandleTypingComplete()
     {
         // 이 이벤트는 View에서 현재 줄의 텍스트 출력이 (애니메이션이든, 사용자의 즉시 완료 요청이든)
@@ -72,7 +70,6 @@ public class DialoguePresenter
         _view.ShowView(false);
         _view.ClearMessage();
         _currentSequence = null;
-        _currentLineIndex = -1;
         Debug.Log("Dialogue Ended.");
         // TODO: 대화 종료 후 콜백 또는 이벤트 발생
     }

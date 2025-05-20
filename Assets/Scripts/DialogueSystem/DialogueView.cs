@@ -4,6 +4,7 @@ using UnityEngine.EventSystems;
 using TMPro;
 using System.Collections;
 using System;
+using UnityEditor.Rendering;
 
 
 public class DialogueView : MonoBehaviour, IDialogueView, IPointerDownHandler, IPointerUpHandler, IPointerClickHandler
@@ -174,8 +175,12 @@ public class DialogueView : MonoBehaviour, IDialogueView, IPointerDownHandler, I
 
     public void ShowView(bool show)
     {
-        dialoguePanelObject.SetActive(show);
-        if (!show) _isPointerDownOnView = false;
+        if (!show)
+        {
+            _isPointerDownOnView = false;
+            speakerNameText.text = "";
+            messageText.text = "";
+        }
     }
 
     public void SetFontSize(float size) { /* ... */ }
